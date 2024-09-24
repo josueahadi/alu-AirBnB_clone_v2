@@ -30,7 +30,8 @@ class DBStorage:
         env = os.getenv('HBNB_ENV')
         # storage_type = os.getenv('HBNB_STORAGE_TYPE')
 
-        db_path = ('mysql+mysqldb://{}:{}@{}/{}'.format(user, passwd, host, db))
+        db_path = ('mysql+mysqldb://{}:{}@{}/{}'
+                   .format(user, passwd, host, db))
 
         self.__engine = create_engine(db_path, pool_pre_ping=True)
         # drop all tables if the environment variable HBNB_ENV is equal to test

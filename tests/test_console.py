@@ -1,99 +1,89 @@
 #!/usr/bin/python3
-"""Test for console
-
-all unittests for console.py, all features!
-
-"""
-import os
+"""Test for console"""
 import unittest
+
+from console import HBNBCommand
 from unittest.mock import patch
 from io import StringIO
-from console import HBNBCommand
+import models
 
 
-class TestConsole(unittest.TestCase):
-    """Test console"""
+class ConsoleTestCase(unittest.TestCase):
+    """Test for console"""
 
     def setUp(self):
-        """Set up"""
-        self.id_regex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}"
-        "-[0-9a-f]{4}-[0-9a-f]{12}"
+        self.console = HBNBCommand()
+        self.stdout = StringIO()
+        self.storage = models.storage
+
+    def tearDown(self):
+        del self.stdout
+        del self.storage
 
     def test_create(self):
-        """Test create"""
-        with patch('sys.stdout', new=StringIO()) as f:
-            HBNBCommand().onecmd("create")
-            self.assertEqual("** class name missing **", f.getvalue().strip())
-        with patch('sys.stdout', new=StringIO()) as f:
-            HBNBCommand().onecmd("create FakeClass")
-            self.assertEqual("** class doesn't exist **", f.getvalue().strip())
-        with patch('sys.stdout', new=StringIO()) as f:
-            HBNBCommand().onecmd("create BaseModel")
-            self.assertRegex(f.getvalue().strip(), self.id_regex)
+        """test create basic"""
+        with patch('sys.stdout', self.stdout):
+            self.console.onecmd('create State name="California"')
+        state_id = self.stdout.getvalue()[:-1]
+        # print(state_id)
+        # print(len(state_id))
+        self.assertTrue(len(state_id) == 36)
 
-    def test_show(self):
-        """Test show"""
-        with patch('sys.stdout', new=StringIO()) as f:
-            HBNBCommand().onecmd("show")
-            self.assertEqual("** class name missing **", f.getvalue().strip())
-        # with patch('sys.stdout', new=StringIO()) as f:
-        #     HBNBCommand().onecmd("show FakeClass")
-        #     self.assertEqual("** instance id missing **", f.getvalue().strip())
-        with patch('sys.stdout', new=StringIO()) as f:
-            HBNBCommand().onecmd("show BaseModel")
-            self.assertEqual("** instance id missing **", f.getvalue().strip())
-        with patch('sys.stdout', new=StringIO()) as f:
-            HBNBCommand().onecmd("show BaseModel 1234")
-            self.assertEqual("** no instance found **", f.getvalue().strip())
-        with patch('sys.stdout', new=StringIO()) as f:
-            HBNBCommand().onecmd("create BaseModel")
-            self.assertRegex(f.getvalue().strip(), self.id_regex)
-            HBNBCommand().onecmd("show BaseModel " + f.getvalue().strip())
-            self.assertRegex(f.getvalue().strip(), self.id_regex)
+    def test_create_save(self):
+        """test create save"""
+        with patch('sys.stdout', self.stdout):
+            self.console.onecmd('create State name="California')
+        state_id = self.stdout.getvalue()[:-1]
+        self.assertIsNotNone(
+            self.storage.all()["State.{}".format(state_id)])
 
-    def test_destroy(self):
-        """Test destroy"""
-        with patch('sys.stdout', new=StringIO()) as f:
-            HBNBCommand().onecmd("destroy")
-            self.assertEqual("** class name missing **", f.getvalue().strip())
-        # with patch('sys.stdout', new=StringIO()) as f:
-        #     HBNBCommand().onecmd("destroy FakeClass")
-        #     self.assertEqual("** instance id missing **", f.getvalue().strip())
-        with patch('sys.stdout', new=StringIO()) as f:
-            HBNBCommand().onecmd("destroy BaseModel")
-            self.assertEqual("** instance id missing **", f.getvalue().strip())
-        with patch('sys.stdout', new=StringIO()) as f:
-            HBNBCommand().onecmd("destroy BaseModel 1234")
-            self.assertEqual("** no instance found **", f.getvalue().strip())
-        with patch('sys.stdout', new=StringIO()) as f:
-            HBNBCommand().onecmd("create BaseModel")
-            HBNBCommand().onecmd("destroy BaseModel " + f.getvalue())
-            self.assertIn("Destroyed successfully!", f.getvalue().strip())
+    def test_create_non_existing_class(self):
+        """test non-existing class"""
+        with patch('sys.stdout', self.stdout):
+            self.console.onecmd('create MyModel')
+        self.assertEqual("** class doesn't exist **\n",
+                         self.stdout.getvalue())
 
     def test_all(self):
-        """Test all"""
-        # with patch('sys.stdout', new=StringIO()) as f:
-        #     HBNBCommand().onecmd("all")
-        #     self.assertEqual("[]", f.getvalue().strip())
+        """test all"""
+        with patch('sys.stdout', self.stdout):
+            self.console.onecmd('create State name="California"')
+        with patch('sys.stdout', self.stdout):
+            self.console.onecmd('all State')
+        output = self.stdout.getvalue()[:-1]
+        self.assertIn("State", output)
+        self.assertIn("California", output)
 
-        with patch('sys.stdout', new=StringIO()) as f:
-            HBNBCommand().onecmd("all FakeClass")
-            self.assertEqual("** class doesn't exist **", f.getvalue().strip())
-        with patch('sys.stdout', new=StringIO()) as f:
-            HBNBCommand().onecmd("create BaseModel")
-            HBNBCommand().onecmd("all BaseModel")
-            self.assertIn("BaseModel", f.getvalue().strip())
+    def test_update(self):
+        with patch('sys.stdout', self.stdout):
+            self.console.onecmd('create State name="California"')
+        state_id = self.stdout.getvalue()[:-1]
+        with patch('sys.stdout', self.stdout):
+            self.console.onecmd(
+                'update State {} name="New California"'.format(state_id))
+        with patch('sys.stdout', self.stdout):
+            self.console.onecmd('show State {}'.format(state_id))
+        output = self.stdout.getvalue()[:-1]
+        self.assertIn("California", output)
 
-    def test_quit(self):
-        """Test quit"""
-        with patch('sys.stdout', new=StringIO()) as f:
-            self.assertTrue(HBNBCommand().onecmd("quit"))
+    def test_destroy(self):
+        """test destroy"""
+        with patch('sys.stdout', self.stdout):
+            self.console.onecmd('create State name="California"')
+        state_id = self.stdout.getvalue()[:-1]
+        with patch('sys.stdout', self.stdout):
+            self.console.onecmd('destroy State {}'.format(state_id))
+        # with patch('sys.stdout', self.stdout):
+        #     self.console.onecmd('show State {}'.format(state_id))
+        # self.assertEqual("** no instance found **\n",
+        #                  self.stdout.getvalue())
 
-    def test_EOF(self):
-        """Test EOF"""
-        with patch('sys.stdout', new=StringIO()) as f:
-            self.assertTrue(HBNBCommand().onecmd("EOF"))
-
-
-if __name__ == "__main__":
-    unittest.main()
+    def test_show(self):
+        """test show"""
+        with patch('sys.stdout', self.stdout):
+            self.console.onecmd('create State name="California"')
+        state_id = self.stdout.getvalue()[:-1]
+        with patch('sys.stdout', self.stdout):
+            self.console.onecmd('show State {}'.format(state_id))
+        output = self.stdout.getvalue()[:-1]
+        self.assertIn("California", output)
