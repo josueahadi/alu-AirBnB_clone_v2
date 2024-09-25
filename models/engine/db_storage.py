@@ -62,8 +62,9 @@ class DBStorage:
         """ commit all changes of the current database session """
         try:
             self.__session.commit()
-        except Exception:
+        except Exception as e:
             self.__session.rollback()
+            print(f"Error committing session: {e}")
         finally:
             self.__session.close()
 
@@ -85,4 +86,5 @@ class DBStorage:
         # self.__session = scoped_session(sessionmaker(bind=self.__engine))
 
     def close(self):
-        self.__session.close()
+        """ Close the scoped session """
+        self.__session.remove()
