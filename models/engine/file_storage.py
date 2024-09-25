@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """This module defines a class to manage file storage for the HBNB clone"""
 import json
+import os
 
 
 class FileStorage:
@@ -56,7 +57,8 @@ class FileStorage:
             'Review': Review
         }
         try:
-            temp = {}
+            if os.path.getsize(FileStorage.__file_path) == 0:
+                raise ValueError("Empty file")
             with open(FileStorage.__file_path, 'r') as f:
                 temp = json.load(f)
                 for key, val in temp.items():
@@ -64,6 +66,5 @@ class FileStorage:
         except (FileNotFoundError, json.JSONDecodeError):
             pass
 
-
     def close(self):
-            self.reload()
+        self.reload()

@@ -70,9 +70,9 @@ class TestFileStorage(unittest.TestCase):
         self.assertIn(obj_key, storage.all())
 
     def test_reload_empty(self):
-        """ Load from an empty file """
+        """Load from an empty file should raise ValueError"""
         with open('file.json', 'w') as f:
-            pass
+            pass  # Create an empty file
         with self.assertRaises(ValueError):
             storage.reload()
 

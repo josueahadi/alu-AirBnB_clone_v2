@@ -36,12 +36,18 @@ class BaseModel:
             created_at: creation date
             updated_at: updated date
         """
+        # Get all attributes from the class (including subclass attributes)
+        valid_keys = set(self.__class__.__dict__.keys())  # All class attributes are valid keys
+        valid_keys.update({"id", "created_at", "updated_at"})
+
         if kwargs:
             for key, value in kwargs.items():
+                if key not in valid_keys and key != "__class__":
+                    raise KeyError(f"Invalid key: {key}")
                 if key == "created_at" or key == "updated_at":
                     value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
-                if key != "__class__":
-                    setattr(self, key, value)
+                setattr(self, key, value)
+
             if "id" not in kwargs:
                 self.id = str(uuid.uuid4())
             if "created_at" not in kwargs:
@@ -51,13 +57,6 @@ class BaseModel:
         else:
             self.id = str(uuid.uuid4())
             self.created_at = self.updated_at = datetime.now()
-
-            # kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
-            #                                          '%Y-%m-%dT%H:%M:%S.%f')
-            # kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
-            #                                          '%Y-%m-%dT%H:%M:%S.%f')
-            # del kwargs['__class__']
-            # self.__dict__.update(kwargs)
 
     def __str__(self):
         """Returns a string representation of the instance"""
