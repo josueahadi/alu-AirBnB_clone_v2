@@ -42,8 +42,11 @@ class BaseModel:
         valid_keys.update({"id", "created_at", "updated_at"})
 
         if kwargs:
+            if "__class__" in kwargs:
+                del kwargs["__class__"]  # Remove __class__ if present
+
             for key, value in kwargs.items():
-                if key not in valid_keys and key != "__class__":
+                if key not in valid_keys:
                     raise KeyError(f"Invalid key: {key}")
                 if key == "created_at" or key == "updated_at":
                     value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
