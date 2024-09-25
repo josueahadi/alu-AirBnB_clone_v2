@@ -19,11 +19,11 @@ all_classes = {'State': State, 'City': City,
 
 
 class DBStorage:
-    """This class manages MySQL storage using SQLAlchemy.
+    """This class manages MySQL storage using SQLAlchemy
 
     Attributes:
-        __engine: The SQLAlchemy engine for the MySQL database.
-        __session: The SQLAlchemy session for interacting with the database.
+        __engine: engine object
+        __session: session object
     """
     __engine = None
     __session = None
