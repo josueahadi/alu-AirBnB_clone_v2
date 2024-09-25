@@ -63,6 +63,35 @@ class TestFileStorage(unittest.TestCase):
         key = user.__class__.__name__ + "." + str(user.id)
         self.assertIsNotNone(obj[key])
 
+    def test_save(self):
+        """Test that save correctly writes objects to file.json"""
+        user = User()
+        user.id = "12345"
+        user.name = "Test User"
+        self.storage.new(user)
+        self.storage.save()
+        
+        with open("file.json", "r") as f:
+            data = json.load(f)
+        self.assertIn("User.12345", data)
+
+    def test_delete(self):
+        """Test that delete correctly removes an object"""
+        user = User()
+        user.id = "54321"
+        user.name = "Another Test User"
+        self.storage.new(user)
+        self.storage.delete(user)
+        self.assertNotIn("User.54321", self.storage.all())
+
+    def test_reload_no_file(self):
+        """Test reload behavior when file does not exist"""
+        try:
+            os.remove("file.json")
+        except FileNotFoundError:
+            pass  # Ignore if it doesn't exist
+        self.storage.reload()  # Should not raise an error
+
     def test_reload_filestorage(self):
         """
         tests reload
