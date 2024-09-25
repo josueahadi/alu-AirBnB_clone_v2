@@ -37,6 +37,11 @@ class TestDBStorageDocs(unittest.TestCase):
         # Drop tables or clean up the temporary database
         pass
 
+    @classmethod
+    def setUpClass(cls):
+        """Setup class method to define functions for docstring checks"""
+        cls.dbs_f = inspect.getmembers(DBStorage, predicate=inspect.isfunction)
+
     def test_pep8_conformance(self):
         """Test PEP8 conformance for db_storage.py and its test"""
         pep8s = pycodestyle.StyleGuide(quiet=True)
