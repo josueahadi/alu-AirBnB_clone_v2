@@ -37,7 +37,8 @@ class BaseModel:
             updated_at: updated date
         """
         # Get all attributes from the class (including subclass attributes)
-        valid_keys = set(self.__class__.__dict__.keys())  # All class attributes are valid keys
+        # All class attributes are valid keys
+        valid_keys = set(self.__class__.__dict__.keys())
         valid_keys.update({"id", "created_at", "updated_at"})
 
         if kwargs:
