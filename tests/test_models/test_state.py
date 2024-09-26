@@ -14,7 +14,7 @@ class TestState(unittest.TestCase):
     def setUpClass(cls):
         """set up for test"""
         cls.state = State()
-        cls.state.name = "CA"
+        cls.state.name = "California"
 
     @classmethod
     def teardown(cls):
