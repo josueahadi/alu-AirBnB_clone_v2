@@ -2,21 +2,18 @@
 """Fabric script which generates a tgz archive"""
 
 from datetime import datetime
-from fabric import task
+from fabric.api import local
 from os.path import isdir
-import os
 
 
-@task
-def do_pack(c):
-    """Generates a .tgz archive from the contents of the web_static folder"""
+def do_pack():
+    """TGZ"""
     try:
         date = datetime.now().strftime("%Y%m%d%H%M%S")
-        if not isdir("versions"):
-            os.mkdir("versions")  # Using os.mkdir() to create directories
+        if isdir("versions") is False:
+            local("mkdir versions")
         file_name = "versions/web_static_{}.tgz".format(date)
-        c.local(f"tar -cvzf {file_name} web_static")  # Use the connection object `c`
+        local("tar -cvzf {} web_static".format(file_name))
         return file_name
-    except Exception as e:
-        print(f"Error: {e}")
+    except:
         return None
