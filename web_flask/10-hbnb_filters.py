@@ -5,8 +5,7 @@ Routes:
     "/hbnb_filters" HBnB HTML filters page.
 """
 from models import storage
-from flask import Flask
-from flask import render_template
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
