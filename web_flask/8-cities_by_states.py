@@ -5,6 +5,7 @@ Routes:
     "/cities_by_states" HTML page with a list of all states and related cities
 """
 from models import storage
+from models.state import State
 from flask import Flask
 from flask import render_template
 
@@ -16,7 +17,7 @@ def cities_by_states():
     """Displays an HTML page with a list of all states and related cities.
     States/cities are sorted by name.
     """
-    states = storage.all("State")
+    states = storage.all(State)
     return render_template("8-cities_by_states.html", states=states)
 
 
