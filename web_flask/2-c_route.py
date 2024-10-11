@@ -4,6 +4,7 @@ The application listens on 0.0.0.0, port 5000
 Routes:
     "/" displays 'Hello HBNB!'
     "/hbnb" displays 'HBNB'
+    "/c/<text>" displays 'C' followed by the value of <text>
 """
 from flask import Flask
 
@@ -20,6 +21,13 @@ def hello_hbnb():
 def hbnb():
     """Displays 'HBNB'."""
     return "HBNB"
+
+
+@app.route("/c/<text>", strict_slashes=False)
+def c(text):
+    """Displays 'C' followed by the value of <text>."""
+    text = text.replace("_", " ")
+    return "C {}".format(text)
 
 
 if __name__ == "__main__":
